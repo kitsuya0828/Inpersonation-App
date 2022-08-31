@@ -62,13 +62,14 @@ def handle_message(event):
         message += "write finished\n"
         original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
-        with urlopen(original_content_url) as response:
-            # x, fs = librosa.load(response.read())
-            x, fs = sf.read(io.BytesIO(response.read()))
-            message += f"fs={fs}\n"
-            message += "load finished\n"
-        
-            feature = librosa.feature.spectral_centroid(x, fs)
+        message += f"path {Path.cwd()}\n"
+        # with urlopen(original_content_url) as response:
+        #     x, fs = sf.read(io.BytesIO(response.read()))
+        x, fs = librosa.load(Path(f"static/audio/{message_id}.m4a"))
+        message += f"fs={fs}\n"
+        message += "load finished\n"
+    
+        feature = librosa.feature.spectral_centroid(x, fs)
         
         message += ",".join([str(hoge) for hoge in feature[0]])
     except Exception as e:
