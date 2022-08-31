@@ -56,18 +56,17 @@ def handle_message(event):
     try:
         with open(audio_path, 'wb') as fd:
             fd.write(message_content.content)
-            
-        original_content_url=Path(f'static/audio/{message_id}.m4a').absolute()
+        message += "write finished\n"
+        original_content_url=f'static/audio/{message_id}.m4a'
         
         # DEFAULT_FS = 22050
         x, fs = librosa.load(original_content_url)
+        message += f"fs={fs}\n"
+        message += "load finished\n"
         
         feature = librosa.feature.spectral_centroid(x, fs)
         
-        print(feature[0])
-        
         message += ",".join([str(hoge) for hoge in feature[0]])
-        message += f"fs={fs}"
     except Exception as e:
         message += f"error: {e}"
     
