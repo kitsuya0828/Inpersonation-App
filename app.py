@@ -59,21 +59,17 @@ def handle_message(event):
             
         original_content_url=Path(f'static/audio/{message_id}.m4a').absolute()
         
-        DEFAULT_FS = 22050
-        x, fs = librosa.load(original_content_url, DEFAULT_FS)
+        # DEFAULT_FS = 22050
+        x, fs = librosa.load(original_content_url)
+        
         feature = librosa.feature.spectral_centroid(x, fs)
         
+        print(feature[0])
+        
         message += ",".join([str(hoge) for hoge in feature[0]])
+        message += f"fs={fs}"
     except Exception as e:
         message += str(e)
-    
-    
-    # type_str = str(type(message_content))
-    # type_content_str = str(type(message_content.content))
-    # try:
-    #     message_content_len = len(message_content.content)
-    # except Exception as e:
-    #     message_content_len = e
     
     line_bot_api.reply_message(
     event.reply_token,
