@@ -50,14 +50,15 @@ def handle_message(event):
     message_content = line_bot_api.get_message_content(message_id)
     
     type_str = str(type(message_content))
+    type_content_str = str(type(message_content.content))
     try:
-        message_content_len = len(message_content)
+        message_content_len = len(message_content.content)
     except Exception as e:
         message_content_len = e
     
     line_bot_api.reply_message(
     event.reply_token,
-    TextSendMessage(text=f"{type_str}, {message_content_len}"))        
+    TextSendMessage(text=f"{type_str}, {type_content_str}, {message_content_len}"))        
 
 if __name__ == "__main__":
 	app.run()
