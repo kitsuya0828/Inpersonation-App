@@ -6,7 +6,7 @@ from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import (MessageEvent, TextMessage, TextSendMessage, AudioMessage, AudioSendMessage)
 import librosa
-
+#a
 # generate instance
 app = Flask(__name__, static_url_path="/static")
 
