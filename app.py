@@ -69,11 +69,11 @@ def handle_message(event):
         message += ",".join([str(hoge) for hoge in feature[0]])
         message += f"fs={fs}"
     except Exception as e:
-        message += str(e)
+        message += f"error: {e}"
     
     line_bot_api.reply_message(
     event.reply_token,
-    TextSendMessage(text=f"Yeah!!{message[:5]}"))        
+    TextSendMessage(text=f"Yeah!!{message}"))        
 
 if __name__ == "__main__":
 	app.run()
