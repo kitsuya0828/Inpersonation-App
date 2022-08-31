@@ -50,6 +50,7 @@ def handle_message(event):
     message_id = event.message.id
     message_content = line_bot_api.get_message_content(message_id)
     
+    message = ""
     try:
         with open(f"/app/static/audio/{message_id}.m4a", 'wb') as fd:
             fd.write(message_content.content)
@@ -60,9 +61,9 @@ def handle_message(event):
             x, fs = librosa.load(original_content_url, DEFAULT_FS)
             feature = librosa.feature.spectral_centroid(x, fs)
             
-            message = ",".join(feature)
+            message += ",".join([str(hoge) for hoge in feature[0]])
     except Exception as e:
-        message = e
+        message += e
     
     
     # type_str = str(type(message_content))
