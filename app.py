@@ -63,6 +63,7 @@ def handle_message(event):
         original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
         message += f"path {Path.cwd()}\n"
+        message += f"os.listdir(static/audio)\n"
         # with urlopen(original_content_url) as response:
         #     x, fs = sf.read(io.BytesIO(response.read()))
         x, fs = librosa.load(f"static/audio/{message_id}.m4a")
