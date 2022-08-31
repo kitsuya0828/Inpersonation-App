@@ -57,20 +57,20 @@ def handle_message(event):
     message = ""
     audio_path = Path(f"static/audio/{message_id}.m4a").absolute()
     try:
-        with open(audio_path, 'wb') as fd:
-            fd.write(message_content.content)
-        message += "write finished\n"
-        original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
+        # with open(audio_path, 'wb') as fd:
+        #     fd.write(message_content.content)
+        # message += "write finished\n"
+        # original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
-        message += f"path {Path.cwd()}\n"
-        message += f"os.listdir(static/audio)\n"
-        # with urlopen(original_content_url) as response:
-        #     x, fs = sf.read(io.BytesIO(response.read()))
-        x, fs = librosa.load(f"static/audio/{message_id}.m4a")
-        message += f"fs={fs}\n"
-        message += "load finished\n"
+        # message += f"path {Path.cwd()}\n"
+        # message += f"{os.listdir('static/audio')}\n"
+        # # with urlopen(original_content_url) as response:
+        # #     x, fs = sf.read(io.BytesIO(response.read()))
+        # x, fs = librosa.load(original_content_url)
+        # message += f"fs={fs}\n"
+        # message += "load finished\n"
     
-        feature = librosa.feature.spectral_centroid(x, fs)
+        feature = librosa.feature.spectral_centroid(message_content.content, 22050)
         
         message += ",".join([str(hoge) for hoge in feature[0]])
     except Exception as e:
