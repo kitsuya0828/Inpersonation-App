@@ -62,7 +62,7 @@ def handle_message(event):
         
         with urlopen(original_content_url) as response:
             # DEFAULT_FS = 22050
-            x, fs = librosa.load(original_content_url)
+            x, fs = librosa.load(response)
             message += f"fs={fs}\n"
             message += "load finished\n"
         
