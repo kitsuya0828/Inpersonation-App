@@ -55,13 +55,13 @@ def handle_message(event):
         with open(f"/app/static/audio/{message_id}.m4a", 'wb') as fd:
             fd.write(message_content.content)
             
-            original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
-            
-            DEFAULT_FS = 22050
-            x, fs = librosa.load(original_content_url, DEFAULT_FS)
-            feature = librosa.feature.spectral_centroid(x, fs)
-            
-            message += ",".join([str(hoge) for hoge in feature[0]])
+        original_content_url=f'/app/static/audio/{message_id}.m4a'
+        
+        DEFAULT_FS = 22050
+        x, fs = librosa.load(original_content_url, DEFAULT_FS)
+        feature = librosa.feature.spectral_centroid(x, fs)
+        
+        message += ",".join([str(hoge) for hoge in feature[0]])
     except Exception as e:
         message += e
     
