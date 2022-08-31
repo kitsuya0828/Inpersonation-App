@@ -4,6 +4,7 @@ import os
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import (MessageEvent, TextMessage, TextSendMessage, AudioMessage, AudioSendMessage)
+import librosa
 
 # generate instance
 app = Flask(__name__)
@@ -49,16 +50,31 @@ def handle_message(event):
     message_id = event.message.id
     message_content = line_bot_api.get_message_content(message_id)
     
-    type_str = str(type(message_content))
-    type_content_str = str(type(message_content.content))
     try:
-        message_content_len = len(message_content.content)
+        with open(f"/app/static/audio/{message_id}.m4a", 'wb') as fd:
+            fd.write(message_content.content)
+            
+            original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
+            
+            DEFAULT_FS = 22050
+            x, fs = librosa.load(original_content_url, DEFAULT_FS)
+            feature = librosa.feature.spectral_centroid(x, fs)
+            
+            message = ",".join(feature)
     except Exception as e:
-        message_content_len = e
+        message = e
+    
+    
+    # type_str = str(type(message_content))
+    # type_content_str = str(type(message_content.content))
+    # try:
+    #     message_content_len = len(message_content.content)
+    # except Exception as e:
+    #     message_content_len = e
     
     line_bot_api.reply_message(
     event.reply_token,
-    TextSendMessage(text=f"{type_str}, {type_content_str}, {message_content_len}"))        
+    TextSendMessage(text="Yeah!!\n{message}"))        
 
 if __name__ == "__main__":
 	app.run()
