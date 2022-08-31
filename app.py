@@ -57,7 +57,7 @@ def handle_message(event):
         with open(audio_path, 'wb') as fd:
             fd.write(message_content.content)
             
-        original_content_url=f'static/audio/{message_id}.m4a'
+        original_content_url=Path(f'static/audio/{message_id}.m4a').absolute()
         
         DEFAULT_FS = 22050
         x, fs = librosa.load(original_content_url, DEFAULT_FS)
@@ -65,7 +65,7 @@ def handle_message(event):
         
         message += ",".join([str(hoge) for hoge in feature[0]])
     except Exception as e:
-        message += e
+        message += str(e)
     
     
     # type_str = str(type(message_content))
