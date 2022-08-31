@@ -25,6 +25,11 @@ def main():
             'title': "test",
             'date': str(dt_now),
         })
+        
+        #　読み込み
+        docs = doc_ref.stream()
+        for doc in docs:
+            print(f"{doc.id} => {doc.to_dict()}")
     except Exception as e:
         print(e)
 
