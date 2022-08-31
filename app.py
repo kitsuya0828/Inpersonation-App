@@ -61,7 +61,6 @@ def handle_message(event):
         original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
         with urlopen(original_content_url) as response:
-            # DEFAULT_FS = 22050
             x, fs = librosa.load(response)
             message += f"fs={fs}\n"
             message += "load finished\n"
