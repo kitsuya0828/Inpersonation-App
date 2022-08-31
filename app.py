@@ -1,6 +1,7 @@
 from flask import Flask, abort
 from flask import request
 from pathlib import Path
+from urllib.request import urlopen
 import os
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
@@ -57,14 +58,15 @@ def handle_message(event):
         with open(audio_path, 'wb') as fd:
             fd.write(message_content.content)
         message += "write finished\n"
-        original_content_url=f'static/audio/{message_id}.m4a'
+        original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
-        # DEFAULT_FS = 22050
-        x, fs = librosa.load(original_content_url)
-        message += f"fs={fs}\n"
-        message += "load finished\n"
+        with urlopen(original_content_url) as response:
+            # DEFAULT_FS = 22050
+            x, fs = librosa.load(original_content_url)
+            message += f"fs={fs}\n"
+            message += "load finished\n"
         
-        feature = librosa.feature.spectral_centroid(x, fs)
+            feature = librosa.feature.spectral_centroid(x, fs)
         
         message += ",".join([str(hoge) for hoge in feature[0]])
     except Exception as e:
