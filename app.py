@@ -6,4 +6,4 @@ app = Flask(__name__)
 # endpoint
 @app.route("/")
 def test():
-    return "<h1>It Works!!</h1>"
+    return "<h1>It Works!</h1>"
