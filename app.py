@@ -65,7 +65,7 @@ def handle_message(event):
         message += f"path {Path.cwd()}\n"
         # with urlopen(original_content_url) as response:
         #     x, fs = sf.read(io.BytesIO(response.read()))
-        x, fs = librosa.load(Path(f"static/audio/{message_id}.m4a"))
+        x, fs = librosa.load(f"static/audio/{message_id}.m4a")
         message += f"fs={fs}\n"
         message += "load finished\n"
     
