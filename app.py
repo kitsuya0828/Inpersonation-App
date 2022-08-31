@@ -1,5 +1,6 @@
 from flask import Flask, abort
 from flask import request
+from pathlib import Path
 import os
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
@@ -7,7 +8,7 @@ from linebot.models import (MessageEvent, TextMessage, TextSendMessage, AudioMes
 import librosa
 
 # generate instance
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/static")
 
 # get environmental value from heroku
 ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
@@ -51,11 +52,12 @@ def handle_message(event):
     message_content = line_bot_api.get_message_content(message_id)
     
     message = ""
+    audio_path = Path(f"static/audio/{message_id}.m4a").absolute()
     try:
-        with open(f"/app/static/audio/{message_id}.m4a", 'wb') as fd:
+        with open(audio_path, 'wb') as fd:
             fd.write(message_content.content)
             
-        original_content_url=f'/app/static/audio/{message_id}.m4a'
+        original_content_url=f'static/audio/{message_id}.m4a'
         
         DEFAULT_FS = 22050
         x, fs = librosa.load(original_content_url, DEFAULT_FS)
