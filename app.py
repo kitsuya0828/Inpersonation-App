@@ -63,49 +63,49 @@ def handle_message(event):
     message = ""
     
     audio_path = Path(f"static/audio/{message_id}.m4a").absolute()
-    try:
+    # try:
         # tfile = tempfile.NamedTemporaryFile(delete=False)
         # tfile.write(message_content.content)
         
         # message += f"file_name {tfile.name}\n"
         
-        with open(audio_path, 'wb') as fd:
-            for chunk in message_content.iter_content():
-                fd.write(chunk)
-        
-        message += "write finished\n"
-        original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
-        
-        # line_bot_api.reply_message(
-        # event.reply_token,
-        # TextSendMessage(f"{audio_path}\n"))
-        message += f"{audio_path}\n"
-        # message += f"path {Path.cwd()}\n"
-        # message += f"{os.listdir('static/audio')}\n"
-        # # with urlopen(original_content_url) as response:
-        # #     x, fs = sf.read(io.BytesIO(response.read()))
-        # x, fs = sf.read(tfile.name)
-        # message += "sf succeeded\n"
-        file_path = Path(f"static/audio/{message_id}.m4a")
-        message += f"1. {file_path.exists()}\n"
-        
-
-        # x, fs = librosa.load(file_path)
-        # x, fs = sf.read(file_path)
-        data, samplerate = sf.read(io.BytesIO(urlopen(original_content_url).read()))
-        # # message += f"fs={fs}\n"
-        message += "load finished\n"
+    with open(audio_path, 'wb') as fd:
+        for chunk in message_content.iter_content():
+            fd.write(chunk)
+    
+    message += "write finished\n"
+    original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
+    
+    # line_bot_api.reply_message(
+    # event.reply_token,
+    # TextSendMessage(f"{audio_path}\n"))
+    message += f"{audio_path}\n"
+    # message += f"path {Path.cwd()}\n"
+    # message += f"{os.listdir('static/audio')}\n"
+    # # with urlopen(original_content_url) as response:
+    # #     x, fs = sf.read(io.BytesIO(response.read()))
+    # x, fs = sf.read(tfile.name)
+    # message += "sf succeeded\n"
+    file_path = Path(f"static/audio/{message_id}.m4a")
+    message += f"1. {file_path.exists()}\n"
     
 
-    # # x = np.frombuffer(message_content.content)
-    # # message += f"shape {x.shape}\n"
+    # x, fs = librosa.load(file_path)
+    # x, fs = sf.read(file_path)
+    data, samplerate = sf.read(io.BytesIO(urlopen(original_content_url).read()))
+    # # message += f"fs={fs}\n"
+    message += "load finished\n"
 
-        feature = librosa.feature.spectral_centroid(data, samplerate)
-        message += f"feature len {len(feature)}\n"
-        message += f"{feature[0]}"
 
-    except Exception as e:
-        message += f"error: {e}"
+# # x = np.frombuffer(message_content.content)
+# # message += f"shape {x.shape}\n"
+
+    feature = librosa.feature.spectral_centroid(data, samplerate)
+    message += f"feature len {len(feature)}\n"
+    message += f"{feature[0]}"
+
+    # except Exception as e:
+    #     message += f"error: {e}"
     
     line_bot_api.reply_message(
     event.reply_token,
