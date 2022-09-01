@@ -89,30 +89,20 @@ def handle_message(event):
         file_path = Path(f"static/audio/{message_id}.m4a")
         message += f"1. {file_path.exists()}\n"
         
-        file_path = Path(f"static/audio/{message_id}.m4a").absolute()
-        message += f"2. {file_path.exists()}\n"
-        
-        file_path = f"static/audio/{message_id}.m4a"
-        message += f"3. {file_path.exists()}\n"
-        
-        file_path = f"/app/static/audio/{message_id}.m4a"
-        message += f"4. {file_path.exists()}\n"
-        # try:
-        #     x, fs = librosa.load(file_path)
-        #     # # message += f"fs={fs}\n"
-        #     message += "load finished\n"
-        #     x = audio_format.byte_to_float(message_content.content)
-        #     fs = 22050
+        try:
+            x, fs = librosa.load(file_path)
+            # # message += f"fs={fs}\n"
+            message += "load finished\n"
         
 
         # # x = np.frombuffer(message_content.content)
         # # message += f"shape {x.shape}\n"
     
-        #     feature = librosa.feature.spectral_centroid(x, fs)
-        #     message += f"feature {feature}\n"
-        #     message += ",".join([str(hoge) for hoge in feature[0]])
-        # except Exception as e:
-        #     message += f'error: {e}'
+            feature = librosa.feature.spectral_centroid(x, fs)
+            message += f"feature len {len(feature)}\n"
+            message += ",".join([str(hoge) for hoge in feature[0][:10]])
+        except Exception as e:
+            message += f'error: {e}'
     except Exception as e:
         message += f"error: {e}"
     
