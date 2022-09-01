@@ -72,8 +72,11 @@ def handle_message(event):
                 fd.write(chunk)
         
         message += "write finished\n"
-        # original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
+        original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
+        line_bot_api.reply_message(
+        event.reply_token,
+        AudioSendMessage(original_content_url))
         # message += f"path {Path.cwd()}\n"
         # message += f"{os.listdir('static/audio')}\n"
         # # with urlopen(original_content_url) as response:
