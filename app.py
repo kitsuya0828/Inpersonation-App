@@ -75,29 +75,33 @@ def handle_message(event):
         message += "write finished\n"
         original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
-        line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(f"{audio_path}\n"))
+        # line_bot_api.reply_message(
+        # event.reply_token,
+        # TextSendMessage(f"{audio_path}\n"))
         # message += f"path {Path.cwd()}\n"
         # message += f"{os.listdir('static/audio')}\n"
         # # with urlopen(original_content_url) as response:
         # #     x, fs = sf.read(io.BytesIO(response.read()))
         # x, fs = sf.read(tfile.name)
         # message += "sf succeeded\n"
-        # file_name = audio_path
-        # x, fs = librosa.load(file_name)
-        # # message += f"fs={fs}\n"
-        # message += "load finished\n"
-        x = audio_format.byte_to_float(message_content.content)
-        fs = 22050
-        
+        file_name = f"./static/audio/{message_id}.m4a"
+        try:
+            if os.path.exists(file_name):
+                x, fs = librosa.load(file_name)
+            # # message += f"fs={fs}\n"
+                message += "load finished\n"
+                x = audio_format.byte_to_float(message_content.content)
+                fs = 22050
+            
 
-        # x = np.frombuffer(message_content.content)
-        # message += f"shape {x.shape}\n"
-    
-        feature = librosa.feature.spectral_centroid(x, fs)
-        message += f"feature {feature}\n"
-        message += ",".join([str(hoge) for hoge in feature[0]])
+            # x = np.frombuffer(message_content.content)
+            # message += f"shape {x.shape}\n"
+        
+                feature = librosa.feature.spectral_centroid(x, fs)
+                message += f"feature {feature}\n"
+                message += ",".join([str(hoge) for hoge in feature[0]])
+        except Exception as e:
+            message += f'error: {e}'
     except Exception as e:
         message += f"error: {e}"
     
