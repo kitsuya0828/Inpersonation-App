@@ -56,17 +56,20 @@ def handle_message(event):
     message_id = event.message.id
     message_content = line_bot_api.get_message_content(message_id)
     
-    message = ""
+    
     audio_path = Path(f"static/audio/{message_id}.m4a").absolute()
+    message = f"audio_path {audio_path}\n"
     try:
-        tfile = tempfile.NamedTemporaryFile(delete=False)
-        tfile.write(message_content.content)
+        # tfile = tempfile.NamedTemporaryFile(delete=False)
+        # tfile.write(message_content.content)
         
         # message += f"file_name {tfile.name}\n"
         
-        # with open(audio_path, 'wb') as fd:
-        #     fd.write(message_content.content)
-        # message += "write finished\n"
+        with open(audio_path, 'wb') as fd:
+            for chunk in message_content.iter_content():
+                fd.write(chunk)
+        
+        message += "write finished\n"
         # original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
         # message += f"path {Path.cwd()}\n"
@@ -75,7 +78,7 @@ def handle_message(event):
         # #     x, fs = sf.read(io.BytesIO(response.read()))
         # x, fs = sf.read(tfile.name)
         # message += "sf succeeded\n"
-        file_name = librosa.ex("trumpet")
+        file_name = audio_path
         x, fs = librosa.load(file_name)
         # message += f"fs={fs}\n"
         message += "load finished\n"
