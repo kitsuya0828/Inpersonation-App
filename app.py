@@ -76,9 +76,10 @@ def handle_message(event):
         message += "write finished\n"
         original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
-        line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(f"{audio_path}\n"))
+        # line_bot_api.reply_message(
+        # event.reply_token,
+        # TextSendMessage(f"{audio_path}\n"))
+        message += f"{audio_path}\n"
         # message += f"path {Path.cwd()}\n"
         # message += f"{os.listdir('static/audio')}\n"
         # # with urlopen(original_content_url) as response:
@@ -86,23 +87,32 @@ def handle_message(event):
         # x, fs = sf.read(tfile.name)
         # message += "sf succeeded\n"
         file_path = Path(f"static/audio/{message_id}.m4a")
-        message += f"{file_path.exist()}\n"
-        try:
-            x, fs = librosa.load(file_path)
-            # # message += f"fs={fs}\n"
-            message += "load finished\n"
-            x = audio_format.byte_to_float(message_content.content)
-            fs = 22050
+        message += f"1. {file_path.exists()}\n"
+        
+        file_path = Path(f"static/audio/{message_id}.m4a").absolute()
+        message += f"2. {file_path.exists()}\n"
+        
+        file_path = f"static/audio/{message_id}.m4a"
+        message += f"3. {file_path.exists()}\n"
+        
+        file_path = f"/app/static/audio/{message_id}.m4a"
+        message += f"4. {file_path.exists()}\n"
+        # try:
+        #     x, fs = librosa.load(file_path)
+        #     # # message += f"fs={fs}\n"
+        #     message += "load finished\n"
+        #     x = audio_format.byte_to_float(message_content.content)
+        #     fs = 22050
         
 
-        # x = np.frombuffer(message_content.content)
-        # message += f"shape {x.shape}\n"
+        # # x = np.frombuffer(message_content.content)
+        # # message += f"shape {x.shape}\n"
     
-            feature = librosa.feature.spectral_centroid(x, fs)
-            message += f"feature {feature}\n"
-            message += ",".join([str(hoge) for hoge in feature[0]])
-        except Exception as e:
-            message += f'error: {e}'
+        #     feature = librosa.feature.spectral_centroid(x, fs)
+        #     message += f"feature {feature}\n"
+        #     message += ",".join([str(hoge) for hoge in feature[0]])
+        # except Exception as e:
+        #     message += f'error: {e}'
     except Exception as e:
         message += f"error: {e}"
     
