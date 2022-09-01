@@ -75,9 +75,9 @@ def handle_message(event):
         message += "write finished\n"
         original_content_url=f'https://mimic-chatbot-backend.herokuapp.com/static/audio/{message_id}.m4a'
         
-        # line_bot_api.reply_message(
-        # event.reply_token,
-        # TextSendMessage(f"{audio_path}\n"))
+        line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(f"{audio_path}\n"))
         # message += f"path {Path.cwd()}\n"
         # message += f"{os.listdir('static/audio')}\n"
         # # with urlopen(original_content_url) as response:
@@ -88,7 +88,7 @@ def handle_message(event):
         try:
             if os.path.exists(file_name):
                 x, fs = librosa.load(file_name)
-            # # message += f"fs={fs}\n"
+                # # message += f"fs={fs}\n"
                 message += "load finished\n"
                 x = audio_format.byte_to_float(message_content.content)
                 fs = 22050
