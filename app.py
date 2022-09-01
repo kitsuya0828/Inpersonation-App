@@ -75,8 +75,8 @@ def handle_message(event):
         # #     x, fs = sf.read(io.BytesIO(response.read()))
         # x, fs = sf.read(tfile.name)
         # message += "sf succeeded\n"
-        
-        x, fs = librosa.load("static/audio/Azuma_excellent.m4a")
+        file_name = librosa.ex("trumpet")
+        x, fs = librosa.load(file_name)
         # message += f"fs={fs}\n"
         message += "load finished\n"
         
