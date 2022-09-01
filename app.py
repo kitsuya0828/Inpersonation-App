@@ -10,6 +10,7 @@ import librosa
 import io
 import soundfile as sf
 import numpy as np
+import tempfile
 
 # generate instance
 app = Flask(__name__, static_url_path="/static")
@@ -58,6 +59,11 @@ def handle_message(event):
     message = ""
     audio_path = Path(f"static/audio/{message_id}.m4a").absolute()
     try:
+        tfile = tempfile.NamedTemporaryFile(delete=False)
+        tfile.write(message_content.content)
+        
+        message += f"file_name {tfile.name}\n"
+        
         # with open(audio_path, 'wb') as fd:
         #     fd.write(message_content.content)
         # message += "write finished\n"
@@ -67,13 +73,13 @@ def handle_message(event):
         # message += f"{os.listdir('static/audio')}\n"
         # # with urlopen(original_content_url) as response:
         # #     x, fs = sf.read(io.BytesIO(response.read()))
-        # x, fs = librosa.load(original_content_url)
+        x, fs = librosa.load(tfile.name)
         # message += f"fs={fs}\n"
         # message += "load finished\n"
-        x = np.frombuffer(message_content.content)
-        message += f"shape {x.shape}\n"
+        # x = np.frombuffer(message_content.content)
+        # message += f"shape {x.shape}\n"
     
-        feature = librosa.feature.spectral_centroid(x, 22050)
+        feature = librosa.feature.spectral_centroid(x, fs)
         
         message += ",".join([str(hoge) for hoge in feature[0]])
     except Exception as e:
