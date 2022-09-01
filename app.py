@@ -57,8 +57,9 @@ def handle_message(event):
     message_id = event.message.id
     message_content = line_bot_api.get_message_content(message_id)
     
-    message = f"message_content {message_content.content}"
-    message = message[:min(len(message), 1000)]
+    # message = f"message_content {message_content.content}"
+    # message = message[:min(len(message), 1000)]
+    message = ""
     
     audio_path = Path(f"static/audio/{message_id}.m4a").absolute()
     try:
@@ -76,7 +77,7 @@ def handle_message(event):
         
         line_bot_api.reply_message(
         event.reply_token,
-        AudioSendMessage(original_content_url))
+        TextSendMessage(f"{os.path.exists(audio_path)}\n"))
         # message += f"path {Path.cwd()}\n"
         # message += f"{os.listdir('static/audio')}\n"
         # # with urlopen(original_content_url) as response:
