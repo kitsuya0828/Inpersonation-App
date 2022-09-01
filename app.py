@@ -9,6 +9,7 @@ from linebot.models import (MessageEvent, TextMessage, TextSendMessage, AudioMes
 import librosa
 import io
 import soundfile as sf
+import numpy as np
 
 # generate instance
 app = Flask(__name__, static_url_path="/static")
@@ -69,8 +70,10 @@ def handle_message(event):
         # x, fs = librosa.load(original_content_url)
         # message += f"fs={fs}\n"
         # message += "load finished\n"
+        x = np.frombuffer(message_content.content)
+        message += f"shape {x.shape}\n"
     
-        feature = librosa.feature.spectral_centroid(message_content.content, 22050)
+        feature = librosa.feature.spectral_centroid(x, 22050)
         
         message += ",".join([str(hoge) for hoge in feature[0]])
     except Exception as e:
