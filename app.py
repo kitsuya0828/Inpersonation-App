@@ -11,6 +11,7 @@ import io
 import soundfile as sf
 import numpy as np
 import tempfile
+import audio_format
 
 # generate instance
 app = Flask(__name__, static_url_path="/static")
@@ -56,11 +57,10 @@ def handle_message(event):
     message_id = event.message.id
     message_content = line_bot_api.get_message_content(message_id)
     
-    message += f"message_content {message_content.content}"
+    message = f"message_content {message_content.content}"
     message = message[:min(len(message), 1000)]
     
     audio_path = Path(f"static/audio/{message_id}.m4a").absolute()
-    message = f"audio_path {audio_path}\n"
     try:
         # tfile = tempfile.NamedTemporaryFile(delete=False)
         # tfile.write(message_content.content)
@@ -80,10 +80,12 @@ def handle_message(event):
         # #     x, fs = sf.read(io.BytesIO(response.read()))
         # x, fs = sf.read(tfile.name)
         # message += "sf succeeded\n"
-        file_name = audio_path
-        x, fs = librosa.load(file_name)
-        # message += f"fs={fs}\n"
-        message += "load finished\n"
+        # file_name = audio_path
+        # x, fs = librosa.load(file_name)
+        # # message += f"fs={fs}\n"
+        # message += "load finished\n"
+        x = audio_format.byte_to_float(message_content.content)
+        fs = 22050
         
 
         # x = np.frombuffer(message_content.content)
