@@ -77,7 +77,7 @@ def handle_message(event):
         
         line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(f"{os.path.exists(audio_path)}\n"))
+        TextSendMessage(f"{audio_path}\n"))
         # message += f"path {Path.cwd()}\n"
         # message += f"{os.listdir('static/audio')}\n"
         # # with urlopen(original_content_url) as response:
