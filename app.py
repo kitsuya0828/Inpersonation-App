@@ -62,7 +62,7 @@ def handle_message(event):
         tfile = tempfile.NamedTemporaryFile(delete=False)
         tfile.write(message_content.content)
         
-        message += f"file_name {tfile.name}\n"
+        # message += f"file_name {tfile.name}\n"
         
         # with open(audio_path, 'wb') as fd:
         #     fd.write(message_content.content)
@@ -73,10 +73,10 @@ def handle_message(event):
         # message += f"{os.listdir('static/audio')}\n"
         # # with urlopen(original_content_url) as response:
         # #     x, fs = sf.read(io.BytesIO(response.read()))
-        x, fs = sf.read(tfile.name)
-        message += "sf succeeded\n"
+        # x, fs = sf.read(tfile.name)
+        # message += "sf succeeded\n"
         
-        x, fs = librosa.load(tfile.name)
+        x, fs = librosa.load("static/audio/Azuma_excellent.m4a")
         # message += f"fs={fs}\n"
         message += "load finished\n"
         
