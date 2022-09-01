@@ -73,14 +73,19 @@ def handle_message(event):
         # message += f"{os.listdir('static/audio')}\n"
         # # with urlopen(original_content_url) as response:
         # #     x, fs = sf.read(io.BytesIO(response.read()))
+        x, fs = sf.read(tfile.name)
+        message += "sf succeeded\n"
+        
         x, fs = librosa.load(tfile.name)
         # message += f"fs={fs}\n"
-        # message += "load finished\n"
+        message += "load finished\n"
+        
+
         # x = np.frombuffer(message_content.content)
         # message += f"shape {x.shape}\n"
     
         feature = librosa.feature.spectral_centroid(x, fs)
-        
+        message += f"feature {feature}\n"
         message += ",".join([str(hoge) for hoge in feature[0]])
     except Exception as e:
         message += f"error: {e}"
