@@ -89,20 +89,21 @@ def handle_message(event):
         file_path = Path(f"static/audio/{message_id}.m4a")
         message += f"1. {file_path.exists()}\n"
         
-        try:
-            x, fs = librosa.load(file_path)
-            # # message += f"fs={fs}\n"
-            message += "load finished\n"
-        
 
-        # # x = np.frombuffer(message_content.content)
-        # # message += f"shape {x.shape}\n"
+        # x, fs = librosa.load(file_path)
+        # x, fs = sf.read(file_path)
+        data, samplerate = sf.read(io.BytesIO(urlopen(original_content_url).read()))
+        # # message += f"fs={fs}\n"
+        message += "load finished\n"
     
-            feature = librosa.feature.spectral_centroid(x, fs)
-            message += f"feature len {len(feature)}\n"
-            message += ",".join([str(hoge) for hoge in feature[0][:10]])
-        except Exception as e:
-            message += f'error: {e}'
+
+    # # x = np.frombuffer(message_content.content)
+    # # message += f"shape {x.shape}\n"
+
+        feature = librosa.feature.spectral_centroid(data, samplerate)
+        message += f"feature len {len(feature)}\n"
+        message += f"{feature[0]}"
+
     except Exception as e:
         message += f"error: {e}"
     
