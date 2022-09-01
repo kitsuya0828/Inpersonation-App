@@ -12,6 +12,7 @@ import soundfile as sf
 import numpy as np
 import tempfile
 import audio_format
+from time import sleep
 
 # generate instance
 app = Flask(__name__, static_url_path="/static")
@@ -84,22 +85,22 @@ def handle_message(event):
         # #     x, fs = sf.read(io.BytesIO(response.read()))
         # x, fs = sf.read(tfile.name)
         # message += "sf succeeded\n"
-        file_name = f"./static/audio/{message_id}.m4a"
+        file_path = Path(f"static/audio/{message_id}.m4a")
+        message += f"{file_path.exist()}\n"
         try:
-            if os.path.exists(file_name):
-                x, fs = librosa.load(file_name)
-                # # message += f"fs={fs}\n"
-                message += "load finished\n"
-                x = audio_format.byte_to_float(message_content.content)
-                fs = 22050
-            
-
-            # x = np.frombuffer(message_content.content)
-            # message += f"shape {x.shape}\n"
+            x, fs = librosa.load(file_path)
+            # # message += f"fs={fs}\n"
+            message += "load finished\n"
+            x = audio_format.byte_to_float(message_content.content)
+            fs = 22050
         
-                feature = librosa.feature.spectral_centroid(x, fs)
-                message += f"feature {feature}\n"
-                message += ",".join([str(hoge) for hoge in feature[0]])
+
+        # x = np.frombuffer(message_content.content)
+        # message += f"shape {x.shape}\n"
+    
+            feature = librosa.feature.spectral_centroid(x, fs)
+            message += f"feature {feature}\n"
+            message += ",".join([str(hoge) for hoge in feature[0]])
         except Exception as e:
             message += f'error: {e}'
     except Exception as e:
