@@ -80,7 +80,7 @@ st.sidebar.button("最初から", on_click=reset)
 theme_audio_file = open(f"static/theme/{name_to_path[option]}", 'rb')
 theme_audio_bytes = theme_audio_file.read()
 st.write(f"▼ お手本：{option}")
-st.audio(theme_audio_bytes, format='audio/mp3')
+st.audio(theme_audio_bytes)
 
 st.markdown("---")
 
