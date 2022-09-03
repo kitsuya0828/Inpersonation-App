@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import librosa
 import uuid
+import json
 
 
 def next():
@@ -118,10 +119,8 @@ st.set_page_config(page_title="１台の端末でプレイする", page_icon="�
 st.sidebar.header("１台の端末でプレイする")
 
 # {動物名: 音声ファイルパス}
-name_to_path = {
-    "ネコ": "Meow.mp3",
-    "イヌ": "Barking_of_a_dog.mp3"
-}
+with open("static/theme/name_to_path.json", encoding="utf-8") as f:
+    name_to_path = json.load(f)
 option = st.sidebar.selectbox('モノマネするお題を選んでください', name_to_path.keys())
 st.sidebar.button("最初から", on_click=reset)
 
