@@ -1,5 +1,5 @@
-import librosa
 import numpy as np
+
 
 def DDTW(Q, C):
     """
@@ -34,19 +34,19 @@ def DDTW(Q, C):
 
     # 一列目を計算
     for i in range(1, n):
-        gamma_mat[i, 0] = gamma_mat[i - 1, 0] + _gamma(Q[i - 1 : i + 2], C[0:3])
+        gamma_mat[i, 0] = gamma_mat[i - 1, 0] + _gamma(Q[i - 1: i + 2], C[0:3])
         arrows[i, 0] = "↓"
 
     # 一行目を計算
     for j in range(1, m):
-        gamma_mat[0, j] = gamma_mat[0, j - 1] + _gamma(Q[0:3], C[j - 1 : j + 2])
+        gamma_mat[0, j] = gamma_mat[0, j - 1] + _gamma(Q[0:3], C[j - 1: j + 2])
         arrows[0, j] = "←"
 
     # 残りのマスを計算
     for i in range(1, n):
         for j in range(1, m):
             # DDTWを求めるためのマトリクスを埋める
-            d_ij = _gamma(Q[i - 1 : i + 2], C[j - 1 : j + 2])
+            d_ij = _gamma(Q[i - 1: i + 2], C[j - 1: j + 2])
             gamma_mat[i, j] = d_ij + np.min(
                 [gamma_mat[i - 1, j - 1], gamma_mat[i - 1, j], gamma_mat[i, j - 1]]
             )
