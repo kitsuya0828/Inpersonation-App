@@ -70,8 +70,8 @@ st.sidebar.write(
     """ここに説明を書く"""
 )
 name_to_path = {
-    "ネコ": "Meow.ogg",
-    "イヌ": "Barking_of_a_dog.ogg"
+    "ネコ": "Meow.mp3",
+    "イヌ": "Barking_of_a_dog.mp3"
 }
 option = st.sidebar.selectbox('モノマネするお題を選んでください', name_to_path.keys())
 st.sidebar.button("最初から", on_click=reset)
