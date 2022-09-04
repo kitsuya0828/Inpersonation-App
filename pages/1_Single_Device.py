@@ -6,6 +6,7 @@ import pandas as pd
 import librosa
 import uuid
 import json
+from PIL import Image
 
 
 def next():
@@ -124,6 +125,10 @@ with open("static/theme/name_to_path.json", encoding="utf-8") as f:
 option = st.sidebar.selectbox('モノマネするお題を選んでください', name_to_path.keys())
 st.sidebar.button("最初から", on_click=reset)
 
+# {動物名：画像ファイルパス}
+with open("static/image/name_to_image.json", encoding="utf-8") as f:
+    name_to_image = json.load(f)
+
 
 # セッションを管理するUUID
 if "uuid" not in st.session_state:
@@ -137,10 +142,14 @@ if "player_index" not in st.session_state:
 if "finished" not in st.session_state:
     # お手本の音声
     theme_audio_file = open(f"static/theme/{name_to_path[option]}", 'rb')
+    theme_image_file = Image.open(f"static/image/{name_to_image[option]}")
     theme_audio_bytes = theme_audio_file.read()
     st.write(f"▼ お手本：{option}")
+    st.image(theme_image_file, width=200)
     st.audio(theme_audio_bytes)
 
     st.markdown("---")
 
     record()    # 録音画面
+
+#テスト
