@@ -1,3 +1,4 @@
+from turtle import onclick
 import streamlit as st
 from audiorecorder import audiorecorder
 from ddtw import DDTW
@@ -145,3 +146,13 @@ if "finished" not in st.session_state:
     st.markdown("---")
 
     record()    # 録音画面
+
+st.session_state
+
+extra_file_path = st.text_input("file_path")
+def get_static():
+    static_audio_file = open(extra_file_path, 'rb')
+    static_audio_bytes = static_audio_file.read()
+    st.write("▼ 取得しました")
+    st.audio(static_audio_bytes)
+st.button("get file", on_click=get_static)
