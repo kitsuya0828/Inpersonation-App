@@ -150,8 +150,11 @@ st.session_state
 
 extra_file_path = st.text_input("file_path")
 def get_static():
-    static_audio_file = open(extra_file_path, 'rb')
-    static_audio_bytes = static_audio_file.read()
-    st.write("▼ 取得しました")
-    st.audio(static_audio_bytes)
+    x, fs = librosa.load(extra_file_path)
+    st.write("▼ 解析しました")
+    st.write(x, fs)
+    # static_audio_file = open(extra_file_path, 'rb')
+    # static_audio_bytes = static_audio_file.read()
+    
+    # st.audio(static_audio_bytes)
 st.button("get file", on_click=get_static)
