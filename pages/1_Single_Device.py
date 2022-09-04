@@ -1,4 +1,3 @@
-from turtle import onclick
 import streamlit as st
 from audiorecorder import audiorecorder
 from ddtw import DDTW
