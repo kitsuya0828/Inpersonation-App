@@ -1,21 +1,38 @@
-from unittest import result
+import secrets
 import streamlit as st
 from audiorecorder import audiorecorder
 from ddtw import DDTW
+from database import DB
 import numpy as np
 import pandas as pd
 import json
 import librosa
 import time
 from datetime import timedelta, datetime
+from streamlit.components.v1 import html
 
 st.set_page_config(page_title="複数の端末でプレイする", page_icon="👥")
+
+@st.cache
+def get_secrets():
+    cert = {
+        "type": st.secrets["type"],
+        "project_id": st.secrets["project_id"],
+        "private_key_id": st.secrets["private_key_id"],
+        "private_key": st.secrets["private_key"],
+        "client_email": st.secrets["client_email"],
+        "client_id": st.secrets["client_id"],
+        "auth_uri": st.secrets["auth_uri"],
+        "token_uri": st.secrets["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": st.secrets["client_x509_cert_url"]
+    }
+    return cert
 
 def reset():
     "セッションを初期化する"
     for key in st.session_state.keys():
         del st.session_state[key]
-    
 
 def join():
     if len(st.session_state["secret_word"]) > 0 and len(st.session_state["player_name"]) > 0:
@@ -167,13 +184,17 @@ else:
     st.markdown("---")
     if "finished" not in st.session_state:
         count_down((st.session_state["deadline"] - datetime.now()).seconds)
-    
 
+def upload():
+    db = DB(get_secrets())
+    db.firestore_add("test", "さっき")
+
+st.button("upload", on_click=upload)
 
 # サイドバー
 st.sidebar.header("複数の端末でプレイする")
 # st.sidebar.button("最初から入力し直す", on_click=reset)
-st.sidebar.markdown("[最初からプレイする](http://localhost:8501/Multiple_Devices)")
-
+# st.sidebar.markdown("[最初からプレイする](https://kitsuya0828-inpersonation-app-app-azumamulti-challenge-u1f74q.streamlitapp.com/Multiple_Devices/)")
+html('<a href="https://kitsuya0828-inpersonation-app-app-azumamulti-challenge-u1f74q.streamlitapp.com/Multiple_Devices/" target="_blank">最初からプレイする</a>')
 
 st.session_state
