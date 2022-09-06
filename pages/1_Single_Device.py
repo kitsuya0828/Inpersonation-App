@@ -1,6 +1,6 @@
 import streamlit as st
 from audiorecorder import audiorecorder
-from ddtw import DDTW
+from utils import DDTW
 import numpy as np
 import pandas as pd
 import librosa

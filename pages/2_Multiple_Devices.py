@@ -1,6 +1,6 @@
 import streamlit as st
 from audiorecorder import audiorecorder
-from ddtw import DDTW
+from utils import DDTW, get_line_chart
 import numpy as np
 import pandas as pd
 import json
@@ -208,21 +208,23 @@ def show_result():
     name_state_dict = ss_dict["recorded"]
 
     result_list = []
+    name_path_dict = {}
     for name, state in name_state_dict.items():
         if state == "recorded":
+            tmp_file_name = f"static/audio/{name}_{st.session_state['tmp_id']}.wav"
             bucket = client.bucket(f'{cert["project_id"]}.appspot.com')
             blob = bucket.blob(f"audio/{ss_dict['session_id']}/{name}.wav")
-            blob.download_to_filename(
-                f"static/audio/{name}_{st.session_state['tmp_id']}.wav")
+            blob.download_to_filename(tmp_file_name)
 
-            player_y, player_sr = librosa.load(f"static/audio/{name}_{st.session_state['tmp_id']}.wav")
+            player_y, player_sr = librosa.load(tmp_file_name)
             player_features = extract_features(player_y, sr=player_sr)
+            name_path_dict[name] = tmp_file_name
 
             with open("static/theme/name_to_path.json", encoding="utf-8") as f:
                 name_to_path = json.load(f)
-            theme_y, theme_sr = librosa.load(
-                f"static/theme/{name_to_path[ss_dict['theme']]}")
+            theme_y, theme_sr = librosa.load(f"static/theme/{name_to_path[ss_dict['theme']]}")
             theme_features = extract_features(theme_y, sr=theme_sr)
+            name_path_dict[ss_dict['theme']] = f"static/theme/{name_to_path[ss_dict['theme']]}"
 
             score = {}
             with st.spinner(f'{name}のスコアを計算中...'):
@@ -241,7 +243,10 @@ def show_result():
 
     df_sorted = df_indexed.sort_values(by="total_score", ascending=False)
     st.balloons()
-    st.dataframe(df_sorted)    # TODO: リッチにする
+    st.table(df_sorted)
+
+    fig = get_line_chart(name_path_dict)
+    st.plotly_chart(fig, use_container_width=True)
 
 
 if "registered" not in st.session_state:
