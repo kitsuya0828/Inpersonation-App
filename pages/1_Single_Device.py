@@ -87,7 +87,8 @@ def show_result():
     for player_index in range(1, last_player_index+1):
 
         player_y, player_sr = librosa.load(ss_dict[f"path_{player_index}"])
-        player_features = extract_features(player_y, sr=player_sr)
+        player_y_trimmed, _ = librosa.effects.trim(player_y, top_db=25)
+        player_features = extract_features(player_y_trimmed, sr=player_sr)
 
         theme_y, theme_sr = librosa.load(ss_dict[f"theme_path_{player_index}"])
         theme_y_trimmed, index = librosa.effects.trim(theme_y, top_db=25)
