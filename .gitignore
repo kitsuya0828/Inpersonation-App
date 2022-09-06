@@ -1,3 +1,3 @@
-static/audio/*.mp3
+static/audio/*.wav
 __pycache__/
 .streamlit/
