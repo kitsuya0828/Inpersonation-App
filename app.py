@@ -44,7 +44,7 @@ def run():
     
     st.markdown("""👈 **サイドバー**からプレイモードを選んで「ものまね」に挑戦してみましょう！""")
     # SNSシェアボタン
-    html("""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="スティーブじょぶつ" data-url="https://kitsuya0828-inpersonation-app-app-2qumms.streamlitapp.com/" data-text="１人でも複数人でもワイワイ楽しめる！\n新感覚ものまね自動採点アプリ\n" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+    html("""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="スティーブじょぶつ" data-url="https://kitsuya0828-inpersonation-app-app-2qumms.streamlitapp.com/" data-text="１人でも複数人でもワイワイ楽しめる！\n新感覚ものまね自動採点アプリ\n" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     <div class="fb-share-button" data-href="https://kitsuya0828-inpersonation-app-app-2qumms.streamlitapp.com/" data-layout="button" data-size="large"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fkitsuya0828-inpersonation-app-app-2qumms.streamlitapp.com%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">シェアする</a></div><div id="fb-root"></div><script async defer crossorigin="anonymous" src="https://connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v14.0" nonce="yGPVy76g"></script>
     <style type="text/css">.fb_iframe_widget > span {vertical-align: baseline !important;}</style>""")
     
