@@ -9,6 +9,7 @@ import time
 import uuid
 from google.cloud import firestore, storage
 from datetime import timedelta, datetime
+from streamlit.components.v1 import html
 
 st.set_page_config(page_title="複数の端末でプレイする", page_icon="👥")
 
@@ -84,8 +85,12 @@ def host():
 
 def register():
     "情報登録のための処理"
-    st.markdown("# オンラインで友だちと一緒にプレイしよう！")
-    st.image("static/image/ac_cat.jpg")
+    register_col1, register_col2 = st.columns([5, 1])
+    with register_col1:
+        st.header("オンラインで友だちと一緒にプレイしよう！")
+    with register_col2:
+        st.image("static/description/multi_mode_register.jpg")
+    st.info("👈 遊び方はサイドバーをご覧ください")
     query_params_dict = st.experimental_get_query_params()
 
     if "session_id" in query_params_dict:
@@ -247,6 +252,8 @@ def show_result():
 
     fig = get_line_chart(name_path_dict)
     st.plotly_chart(fig, use_container_width=True)
+    
+    html(f"""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="スティーブじょぶつ" data-url="https://kitsuya0828-inpersonation-app-app-2qumms.streamlitapp.com/" data-text="新感覚ものまね自動採点アプリ「ManeCo」で{5}人中\n{1}位になりました" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>""")
 
 
 if "registered" not in st.session_state:
@@ -280,6 +287,4 @@ st.sidebar.header("複数の端末でプレイする")
 
 st.markdown("---")
 st.components.v1.html(
-    f'<a href="{root_url}/Multiple_Devices/" target="_blank">最初からプレイする</a>')
-
-# st.session_state
+    f'<a href="{root_url}/マルチモード/" target="_blank">最初からプレイする</a>')
