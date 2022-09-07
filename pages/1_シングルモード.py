@@ -58,8 +58,6 @@ def record():
 def extract_features(y, sr):
     "いろいろな特徴量を抽出した辞書を返す"
     features_dict = {}
-    
-    # この中でグラフなど用意した方がよい
 
     y_trimmed, _ = librosa.effects.trim(y=y, top_db=25)  # 無音区間削除
     y = librosa.util.normalize(y_trimmed)  # 正規化
@@ -166,9 +164,9 @@ def show_result():
     st.table(df_sorted)
     
     st.markdown("---")
-    
-    html(f"""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="スティーブじょぶつ" data-url="https://kitsuya0828-inpersonation-app-app-2qumms.streamlitapp.com/" data-text="新感覚ものまね自動採点アプリ「ManeCo」で{5}人中\n{1}位になりました" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>""")
     st.button("もう一度プレイする", on_click=reset)
+    html(f"""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="スティーブじょぶつ" data-url="https://kitsuya0828-inpersonation-app-app-2qumms.streamlitapp.com/" data-text="新感覚ものまね自動採点アプリ「ManeCo」で{5}人中\n{1}位になりました" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>""")
+    
 
 
 st.set_page_config(page_title="１台の端末でプレイする", page_icon="👤")
@@ -178,6 +176,9 @@ st.sidebar.header("１台の端末でプレイする")
 with open("static/theme/name_to_path.json", encoding="utf-8") as f:
     name_to_path = json.load(f)
 option = st.sidebar.selectbox('モノマネするお題を選んでください', name_to_path.keys())
+theme_audio_file_ = open(f"static/theme/{name_to_path[option]}", 'rb')
+theme_audio_bytes_ = theme_audio_file_.read()
+st.sidebar.audio(theme_audio_bytes_)
 st.sidebar.button("最初から", on_click=reset)
 
 # {動物名：画像ファイルパス}
