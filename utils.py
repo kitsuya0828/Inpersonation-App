@@ -1,5 +1,6 @@
 import numpy as np
-
+import librosa
+import plotly.graph_objs as go
 
 def DDTW(Q, C):
     """
@@ -62,3 +63,15 @@ def DDTW(Q, C):
                 arrows[i, j] = "←"
 
     return gamma_mat, arrows, gamma_mat[n - 1, m - 1]
+
+
+def get_line_chart(name_path_dict: dict):
+    fig = go.Figure()
+    for name, path in name_path_dict.items():
+        y, sr = librosa.load(path)
+        fig.add_trace(
+            go.Scatter(x=[i for i in range(len(y))],
+            y=y,
+            name=name)
+        )
+    return fig

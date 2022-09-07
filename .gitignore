@@ -1,2 +1,5 @@
+static/audio/*.wav
 static/audio/*.mp3
+static/tmp/*.png
 __pycache__/
+.streamlit/
