@@ -1,6 +1,6 @@
 import streamlit as st
 from audiorecorder import audiorecorder
-from utils import DDTW
+from utils import fast_ddtw
 import numpy as np
 import pandas as pd
 import librosa
@@ -27,10 +27,12 @@ def record():
     "音声を録音する"
     player_index = st.session_state.player_index
     st.header(f"{player_index}人目の番です！")
-    player_name = st.text_input("プレイヤー名を入力してください", f"プレイヤー{player_index}")
-    audio = audiorecorder("クリックして録音する", "録音中...", f"recorder_{player_index}")
-
-    if len(audio) > 0:
+    player_name = st.text_input("▼ プレイヤー名を入力してください", f"プレイヤー{player_index}")
+    audio = audiorecorder("録音を開始する", "録音を停止する", f"recorder_{player_index}")
+    
+    if len(audio) > 6 * 10**4:
+        st.error("録音を短くしてください（目安：5秒以内）", icon="🚨")
+    elif len(audio) > 0:
         st.audio(audio)
 
         file_name = f"static/audio/{st.session_state.uuid}_{player_index}.wav"
@@ -56,36 +58,24 @@ def record():
 
 
 def extract_features(y, sr):
-    "いろいろな特徴量を抽出した辞書を返す"
+    "いろいろな特徴量を抽出した辞書とグラフを返す"
     features_dict = {}
 
     y_trimmed, _ = librosa.effects.trim(y=y, top_db=25)  # 無音区間削除
     y = librosa.util.normalize(y_trimmed)  # 正規化
-
-    # features_dict["chroma_stft"] = librosa.feature.chroma_stft(y=y,sr=sr)
-    # features_dict["chroma_cqt"] = librosa.feature.chroma_cqt(y=y,sr=sr)
-    fig, ax = plt.subplots(2, 1, figsize=(5, 10))
+    
+    fig, ax = plt.subplots(2, 1, figsize=(8, 12))
     features_dict["chroma_cens"] = librosa.feature.chroma_cens(y=y, sr=sr)
     librosa.display.specshow(features_dict["chroma_cens"], y_axis='chroma', x_axis='time', ax=ax[0])
-
-    # features_dict["melspectrogram"] = librosa.feature.melspectrogram(y=y,sr=sr) # パラメータ多い
-    # features_dict["mfcc"] = librosa.feature.mfcc(y=y,sr=sr)
-    # features_dict["rms"] = librosa.feature.rms(y=y)
-    # features_dict["spectral_centroid"] = librosa.feature.spectral_centroid(y=y,sr=sr)
-    # features_dict["spectral_bandwidth"] = librosa.feature.spectral_bandwidth(y=y, sr=sr)
-    # features_dict["spectral_contrast"] = librosa.feature.spectral_contrast(y=y,sr=sr)
-    # features_dict["spectral_flatness"] = librosa.feature.spectral_flatness(y=y)
-    # features_dict["spectral_rolloff"] = librosa.feature.spectral_rolloff(y=y,sr=sr)
-    # features_dict["poly_features"] = librosa.feature.poly_features(y=y,sr=sr)
-    # features_dict["tonnetz"] = librosa.feature.tonnetz(y=y,sr=sr)
     
     features_dict["zero_crossing_rate"] = librosa.feature.zero_crossing_rate(y=y)
     ax[1].plot(features_dict["zero_crossing_rate"][0])
+    
     features_path = f"static/tmp/{uuid.uuid4()}.png"
     plt.savefig(features_path)
     
     for k, v in features_dict.items():
-        features_dict[k] = v.flatten()  # 多次元配列を1次元配列に変換する（改善の余地あり）
+        features_dict[k] = v.flatten()  # 多次元配列を1次元配列に変換する
     return features_dict, y, features_path
 
 
@@ -93,6 +83,7 @@ def show_result():
     st.session_state["finished"] = True
     ss_dict = st.session_state
     last_player_index = ss_dict["last_player_index"]
+    
     result_list = []
     added_theme = {}
     fig = go.Figure()
@@ -101,8 +92,7 @@ def show_result():
     for player_index in range(1, last_player_index+1):
         player_name = ss_dict[f"name_{player_index}"]
         player_y, player_sr = librosa.load(ss_dict[f"path_{player_index}"])
-        player_y_trimmed, _ = librosa.effects.trim(player_y, top_db=25)
-        player_features, new_player_y, player_features_path = extract_features(player_y_trimmed, sr=player_sr)
+        player_features, new_player_y, player_features_path = extract_features(player_y, sr=player_sr)
         
         fig.add_trace(
             go.Scatter(
@@ -114,8 +104,7 @@ def show_result():
         features_paths.append((player_name, player_features_path))
         
         theme_y, theme_sr = librosa.load(ss_dict[f"theme_path_{player_index}"])
-        theme_y_trimmed, index = librosa.effects.trim(theme_y, top_db=25)
-        theme_features, new_theme_y, theme_features_path = extract_features(theme_y_trimmed, sr=theme_sr)
+        theme_features, new_theme_y, theme_features_path = extract_features(theme_y, sr=theme_sr)
         if ss_dict[f"theme_{player_index}"] not in added_theme:
             fig.add_trace(
                 go.Scatter(
@@ -127,13 +116,18 @@ def show_result():
             added_theme[ss_dict[f"theme_{player_index}"]] = True
             features_paths.append((ss_dict[f"theme_{player_index}"], theme_features_path))
         
-        # DDTWを使う（DTWだと何も言わない方がスコアが高くなってしまうため）
         score = {}
-        with st.spinner(f'{player_name}のスコアを計算中...'):
+        with st.spinner(f'{player_name} のスコアを計算中...'):
             for key in player_features.keys():
-                gamma_mat, arrows, _ = DDTW(
-                    player_features[key], theme_features[key])
-                ddtw_eval = 1 - (gamma_mat[-1][-1] / np.array(gamma_mat).max())
+                
+                # DDTW
+                # gamma_mat, arrows, _ = DDTW(player_features[key], theme_features[key])
+                # ddtw_eval = 1 - (gamma_mat[-1][-1] / np.array(gamma_mat).max())
+                
+                # fast DDTW
+                distance, _, D_max = fast_ddtw(player_features[key], theme_features[key])
+                ddtw_eval = 1 - (distance / D_max)
+                
                 score[key] = ddtw_eval
         score["player_name"] = player_name
         result_list.append(score)
@@ -141,15 +135,16 @@ def show_result():
     st.header("結果発表")
     df = pd.DataFrame.from_dict(result_list)
     df['total_score'] = (3 * df["chroma_cens"] + 7 * df["zero_crossing_rate"]) / 10
-    df_indexed = df.set_index("player_name")
+    df.columns = ["CENS", "ZCR", "プレイヤー名", "合計得点"]
+    df_indexed = df.set_index("プレイヤー名")
 
-    df_sorted = df_indexed.sort_values(by="total_score", ascending=False)
+    df_sorted = df_indexed.sort_values(by="合計得点", ascending=False)
     st.balloons()
     cols = st.columns(last_player_index)
     sorted_names = df_sorted.index
     for i in range(last_player_index):
         name = sorted_names[i]
-        cols[i].metric(f"{i+1}位：{name}", f"{int(df_sorted.at[name, 'total_score'] * 100)} 点")
+        cols[i].metric(f"{i+1}位：{name}", f"{int(df_sorted.at[name, '合計得点'] * 100)} 点")
     
     st.caption("▼ 音声波形")
     st.plotly_chart(fig, use_container_width=True)
@@ -165,21 +160,32 @@ def show_result():
     
     st.markdown("---")
     st.button("もう一度プレイする", on_click=reset)
-    html(f"""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="スティーブじょぶつ" data-url="https://kitsuya0828-inpersonation-app-app-2qumms.streamlitapp.com/" data-text="新感覚ものまね自動採点アプリ「ManeCo」で{5}人中\n{1}位になりました" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>""")
-    
+    html(f"""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="ぽいネ" data-url="https://kitsuya0828-inpersonation-app-home-aaa1x7.streamlitapp.com/" data-text="新感覚ものまね自動採点アプリ「ぽいネ！」を{last_player_index}人でプレイしました！" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>""")
 
 
-st.set_page_config(page_title="１台の端末でプレイする", page_icon="👤")
+st.set_page_config(page_title="シングルモード | ぽいネ！", page_icon="👤")
 st.sidebar.header("１台の端末でプレイする")
 
 # {動物名: 音声ファイルパス}
 with open("static/theme/name_to_path.json", encoding="utf-8") as f:
     name_to_path = json.load(f)
-option = st.sidebar.selectbox('モノマネするお題を選んでください', name_to_path.keys())
+option = st.sidebar.selectbox('▼ モノマネするお題を選んでください', name_to_path.keys())
 theme_audio_file_ = open(f"static/theme/{name_to_path[option]}", 'rb')
 theme_audio_bytes_ = theme_audio_file_.read()
 st.sidebar.audio(theme_audio_bytes_)
 st.sidebar.button("最初から", on_click=reset)
+
+st.sidebar.markdown("---")
+st.sidebar.caption("▼ 遊び方")
+st.sidebar.markdown("""
+    1. ものまねをする順番を決める
+    2. お題をサイドバーから選ぶ
+    3. プレイヤー名を入力してお題の音声をよく聴く
+    4. 「録音を開始する」でスタート
+    5. 「録音を停止する」を押してストップ
+    6. 「次の人に進む」を押して次の人に交代する
+    7. 3～6を繰り返して全員終わったら「結果を見る」を押す
+""")
 
 # {動物名：画像ファイルパス}
 with open("static/image/name_to_image.json", encoding="utf-8") as f:
@@ -211,5 +217,3 @@ if "finished" not in st.session_state:
     st.markdown("---")
 
     record()    # 録音画面
-
-#テスト

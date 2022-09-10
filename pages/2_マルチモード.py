@@ -1,19 +1,23 @@
 import streamlit as st
 from audiorecorder import audiorecorder
-from utils import DDTW, get_line_chart
+from utils import fast_ddtw, get_line_chart
 import numpy as np
 import pandas as pd
 import json
 import librosa
+import librosa.display
 import time
 import uuid
+import plotly.graph_objs as go
+import matplotlib.pyplot as plt
+from PIL import Image
 from google.cloud import firestore, storage
 from datetime import timedelta, datetime
 from streamlit.components.v1 import html
 
-st.set_page_config(page_title="複数の端末でプレイする", page_icon="👥")
+st.set_page_config(page_title="マルチモード | ぽいネ！", page_icon="👥")
 
-root_url = "https://kitsuya0828-inpersonation-app-app-azumamulti-challenge-u1f74q.streamlitapp.com"
+root_url = "https://kitsuya0828-inpersonation-app-home-aaa1x7.streamlitapp.com"
 cert = {
     "type": st.secrets["type"],
     "project_id": st.secrets["project_id"],
@@ -103,7 +107,7 @@ def register():
                 session_info["expiration_date"], '%Y-%m-%d %H:%M:%S')
             if datetime.now() > expiration_date:  # セッションの有効期限切れ
                 st.error(f'セッションの有効期限（{session_info["expiration_date"]}）が切れています', icon="🚨")
-                st.components.v1.html(f'<a href="{root_url}/Multiple_Devices/" target="_blank">ホストになる</a>')
+                st.components.v1.html(f'<a href="{root_url}/マルチモード/" target="_blank">ホストになる</a>')
             else:
                 st.session_state["session_id"] = query_params_dict["session_id"][0]
                 st.session_state["user_name"] = st.text_input("▼ ニックネームを入力してください", placeholder="※ 必須")
@@ -126,6 +130,22 @@ def register():
         with open("static/theme/name_to_path.json", encoding="utf-8") as f:
             name_to_path = json.load(f)
             st.session_state["theme"] = st.selectbox('▼ モノマネするお題を選んでください', name_to_path.keys())
+        
+        # 試聴
+        with open("static/image/name_to_image.json", encoding="utf-8") as f:
+            name_to_image = json.load(f)
+        try_theme_image_file = Image.open(f"static/image/{name_to_image[st.session_state['theme']]}")
+        
+        try_theme_audio_file_ = open(f"static/theme/{name_to_path[st.session_state['theme']]}", 'rb')
+        try_theme_audio_bytes_ = try_theme_audio_file_.read()
+        
+        try_col1, try_col2 = st.columns([1, 1])
+        with try_col1:
+            st.image(try_theme_image_file)
+        with try_col2:
+            st.caption("▼ 試聴する")
+            st.audio(try_theme_audio_bytes_)
+        
         host_button = st.button("主催する", on_click=host)
         if host_button:
             if len(st.session_state["user_name"]) == 0:
@@ -164,9 +184,11 @@ def update_submission_info():
 
 def record():
     "音声を録音する"
-    audio = audiorecorder("クリックして録音する", "録音中...", f"recorder")
-
-    if len(audio) > 0:
+    audio = audiorecorder("録音を開始する", "録音を停止する", f"recorder")
+    
+    if len(audio) > 6 * 10**4:
+        st.error("録音を短くしてください（目安：5秒以内）", icon="🚨")
+    elif len(audio) > 0:
         st.audio(audio)
 
         file_name = f"static/audio/{st.session_state['tmp_id']}.wav"
@@ -195,16 +217,30 @@ def record():
 
 
 def extract_features(y, sr):
-    "いろいろな特徴量を抽出した辞書を返す"
+    "いろいろな特徴量を抽出した辞書とグラフを返す"
     features_dict = {}
     y_trimmed, _ = librosa.effects.trim(y=y, top_db=25)  # 無音区間削除
     y = librosa.util.normalize(y_trimmed)  # 正規化
+    
+    fig, ax = plt.subplots(2, 1, figsize=(8, 12))
     features_dict["chroma_cens"] = librosa.feature.chroma_cens(y=y, sr=sr)
+    librosa.display.specshow(features_dict["chroma_cens"], y_axis='chroma', x_axis='time', ax=ax[0])
+    
     features_dict["zero_crossing_rate"] = librosa.feature.zero_crossing_rate(y=y)
-    for k, v in features_dict.items():
-        features_dict[k] = v.flatten()  # 多次元配列を1次元配列に変換する（改善の余地あり）
-    return features_dict
+    ax[1].plot(features_dict["zero_crossing_rate"][0])
 
+    features_path = f"static/tmp/{uuid.uuid4()}.png"
+    plt.savefig(features_path)
+
+    for k, v in features_dict.items():
+        features_dict[k] = v.flatten()  # 多次元配列を1次元配列に変換する
+    return features_dict, y, features_path
+
+def reset_query_params():
+    reset()
+    st.experimental_set_query_params(
+        session_id = ""
+    )
 
 def show_result():
     st.session_state["finished"] = True
@@ -214,6 +250,10 @@ def show_result():
 
     result_list = []
     name_path_dict = {}
+    features_paths = []
+    added_theme = {}
+    fig = go.Figure()
+    
     for name, state in name_state_dict.items():
         if state == "recorded":
             tmp_file_name = f"static/audio/{name}_{st.session_state['tmp_id']}.wav"
@@ -222,48 +262,106 @@ def show_result():
             blob.download_to_filename(tmp_file_name)
 
             player_y, player_sr = librosa.load(tmp_file_name)
-            player_features = extract_features(player_y, sr=player_sr)
+            player_features, new_player_y, player_features_path = extract_features(player_y, sr=player_sr)
             name_path_dict[name] = tmp_file_name
+            
+            fig.add_trace(
+                go.Scatter(
+                    x=[i for i in range(len(new_player_y))],
+                    y=new_player_y,
+                    name=name
+                )
+            )
+            features_paths.append((name, player_features_path))     
+            
 
             with open("static/theme/name_to_path.json", encoding="utf-8") as f:
                 name_to_path = json.load(f)
             theme_y, theme_sr = librosa.load(f"static/theme/{name_to_path[ss_dict['theme']]}")
-            theme_features = extract_features(theme_y, sr=theme_sr)
+            theme_features, new_theme_y, theme_features_path = extract_features(theme_y, sr=theme_sr)
             name_path_dict[ss_dict['theme']] = f"static/theme/{name_to_path[ss_dict['theme']]}"
-
+            if ss_dict["theme"] not in added_theme:
+                fig.add_trace(
+                    go.Scatter(
+                        x=[i for i in range(len(new_theme_y))],
+                        y=new_theme_y,
+                        name=ss_dict[f"theme"]
+                    )
+                )
+                added_theme[ss_dict["theme"]] = True
+                features_paths.append((ss_dict["theme"], theme_features_path))
+            
+            
             score = {}
             with st.spinner(f'{name}のスコアを計算中...'):
                 for key in player_features.keys():
-                    gamma_mat, arrows, _ = DDTW(
-                        player_features[key], theme_features[key])
-                    ddtw_eval = 1 - (gamma_mat[-1][-1] / np.array(gamma_mat).max())
+                    # fast DDTW
+                    distance, _, D_max = fast_ddtw(player_features[key], theme_features[key])
+                    ddtw_eval = 1 - (distance / D_max)
+                    
                     score[key] = ddtw_eval
             score["player_name"] = name
             result_list.append(score)
 
-    st.write("▼ 結果")
+    st.header("結果発表")
     df = pd.DataFrame.from_dict(result_list)
     df['total_score'] = (3 * df["chroma_cens"] + 7 * df["zero_crossing_rate"]) / 10
-    df_indexed = df.set_index("player_name")
+    df.columns = ["CENS", "ZCR", "プレイヤー名", "合計得点"]
+    df_indexed = df.set_index("プレイヤー名")
 
-    df_sorted = df_indexed.sort_values(by="total_score", ascending=False)
+    df_sorted = df_indexed.sort_values(by="合計得点", ascending=False)
     st.balloons()
-    st.table(df_sorted)
-
-    fig = get_line_chart(name_path_dict)
+    sorted_names = df_sorted.index
+    cols = st.columns(len(sorted_names))
+    my_standing = "?"
+    for i in range(len(sorted_names)):
+        name = sorted_names[i]
+        cols[i].metric(f"{i+1}位：{name}", f"{int(df_sorted.at[name, '合計得点'] * 100)} 点")
+        if name == st.session_state["user_name"]:
+            my_standing = i + 1
+            
+    
+    st.caption("▼ 音声波形")
     st.plotly_chart(fig, use_container_width=True)
     
-    html(f"""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="スティーブじょぶつ" data-url="https://kitsuya0828-inpersonation-app-app-2qumms.streamlitapp.com/" data-text="新感覚ものまね自動採点アプリ「ManeCo」で{5}人中\n{1}位になりました" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>""")
+    st.caption("▼ クロマ特徴量(CENS) & Zero-crossing rate(ZCR)")
+    chroma_cens_cols = st.columns(len(features_paths))
+    for i, (name, features_path) in enumerate(features_paths):
+        chroma_cens_cols[i].caption(name)
+        chroma_cens_cols[i].image(features_path)
+    
+    st.caption("▼ DDTWスコア")
+    st.table(df_sorted)
+    
+    st.markdown("---")
+    st.button("もう一度最初からプレイする", on_click=reset_query_params)
+    html(f"""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="ぽいネ" data-url="{root_url}" data-text="新感覚ものまね自動採点アプリ「ぽいネ！」で\n{len(sorted_names)}人中{my_standing}位になりました" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>""")
 
 
-if "registered" not in st.session_state:
+st.sidebar.header("複数の端末でプレイする")
+st.sidebar.button("最初からプレイする", on_click=reset_query_params)
+
+st.sidebar.markdown("---")
+st.sidebar.caption("▼ 遊び方")
+st.sidebar.markdown("""
+    1. 【ホストのみ】がお題を決めて「主催する」を押す
+    2. 【ホストのみ】生成された（ブラウザの）URLを参加者に共有
+    3. 【参加者のみ】URLにアクセスしてプレイヤー名を入力する
+    4. お題の音声をよく聴いてから「録音を開始する」でスタート
+    5. 「録音を停止する」を押してストップ
+    6. 「最新の提出状況」をチェックして全員が「提出済み」になるのを待つ
+    7. 「結果を見る」を押す
+""")
+
+
+
+if "registered" not in st.session_state or ("session_id" in st.session_state and st.session_state["session_id"] == ""):
     reset()
     register()
 else:
     if "finished" not in st.session_state:
-        st.markdown("# Are you ready?")
         if st.session_state["role"] == "host":
-            st.success(f'URLの作成に成功しました。現在のURLを友だちに共有してください。', icon="✅")
+            st.success(f'URLの作成に成功しました。ブラウザに表示されているURLを友だちに共有してください。', icon="✅")
 
         st.session_state["tmp_id"] = uuid.uuid4()   # 録音音声の一時保存用ID
 
@@ -271,10 +369,21 @@ else:
             name_to_path = json.load(f)
         theme_name = st.session_state['theme']
         st.session_state["theme_path"] = f"static/theme/{name_to_path[theme_name]}"
-        st.write(f"▼ お手本：{theme_name}")
         theme_audio_file = open(f"static/theme/{name_to_path[theme_name]}", 'rb')
         theme_audio_bytes = theme_audio_file.read()
-        st.audio(theme_audio_bytes)
+        
+        # {動物名：画像ファイルパス}
+        with open("static/image/name_to_image.json", encoding="utf-8") as f:
+            name_to_image = json.load(f)
+        theme_image_file = Image.open(f"static/image/{name_to_image[theme_name]}")
+        
+        theme_col1, theme_col2 = st.columns([1, 1])
+        with theme_col1:
+            st.image(theme_image_file)
+        with theme_col2:
+            st.caption("お題は…")
+            st.header(f"「{theme_name}」")
+            st.audio(theme_audio_bytes)
 
     if "finished" not in st.session_state:
         record()
@@ -283,8 +392,4 @@ else:
     if "finished" not in st.session_state:
         count_down((st.session_state["deadline"] - datetime.now()).seconds)
 
-st.sidebar.header("複数の端末でプレイする")
-
 st.markdown("---")
-st.components.v1.html(
-    f'<a href="{root_url}/マルチモード/" target="_blank">最初からプレイする</a>')

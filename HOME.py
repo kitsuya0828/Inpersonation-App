@@ -6,44 +6,44 @@ LOGGER = get_logger(__name__)
 
 
 st.set_page_config( # TODO
-    page_title="ManeCo",
+    page_title="ホーム | ぽいネ！",
     page_icon="🎶",
 )
 
 st.caption("新感覚ものまね採点アプリ")
-st.title("ManeCo")
+st.title("ぽいネ！")
 st.sidebar.success("プレイモードを選んでください")
 
 st.markdown(
     """
-    **ManeCo**（まねこ）は、あなたの「ものまね」を採点できるアプリです。
+    **「ぽいネ！」** は、あなたの**ものまね**を採点できるアプリです。
     
     バラエティ豊かなお題を2つのモードでプレイすることができます。
     """
 )
 st.info("👈 サイドバーからプレイモードを選んで「ものまね」に挑戦してみましょう！")
 
-st.markdown("---")
-st.markdown("#### 👤 シングルモード（端末１台でプレイ）")
-single_col1, single_col2 = st.columns([2, 1])
-with single_col1:
-  st.caption("▼ こんな人にオススメ！")
-  st.markdown("""
-      * 1人で練習したい
-      * 近くにいる友だち・家族と勝負したい
-  """)
-with single_col2:
-  st.image("static/description/single_mode_resized.jpg")
+with st.expander("👤 シングルモード（端末１台でプレイ）", expanded=True):
+# st.markdown("#### 👤 シングルモード（端末１台でプレイ）")
+  single_col1, single_col2 = st.columns([2, 1])
+  with single_col1:
+    st.caption("▼ こんな人にオススメ！")
+    st.markdown("""
+        * 1人で練習したい
+        * 近くにいる友だち・家族と勝負したい
+    """)
+  with single_col2:
+    st.image("static/description/single_mode_resized.jpg")
 
-st.markdown("---")
-st.markdown("#### 👥 マルチモード（人数分の端末でプレイ）")
-multi_col1, multi_col2 = st.columns([2, 1])
-with multi_col1:
-  st.caption("▼ こんな人にオススメ！")
-  st.markdown("""【オンラインで】友だち・家族と勝負したい""")
-with multi_col2:
-  st.image("static/description/multi_mode_resized.jpg")
-    
+with st.expander("👥 マルチモード（人数分の端末でプレイ）", expanded=True):
+# st.markdown("#### 👥 マルチモード（人数分の端末でプレイ）")
+  multi_col1, multi_col2 = st.columns([2, 1])
+  with multi_col1:
+    st.caption("▼ こんな人にオススメ！")
+    st.markdown("""【オンラインで】友だち・家族と勝負したい""")
+  with multi_col2:
+    st.image("static/description/multi_mode_resized.jpg")
+
 st.markdown("---")
 
 # SNSシェアボタン
