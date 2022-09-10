@@ -20,7 +20,7 @@ st.markdown("""
 **音響特徴量**といいます。\n
 
 イメージしやすい「声の大きさ」と「声の高さ」以外にも様々な音響特徴量が提案されています。
-**ManeCo（まねこ）** では、以下の3つの音響特徴量に基づいて、ものまねの評価を行っています。
+**ManeCo（まねこ）** では、以下の2つの音響特徴量に基づいて、ものまねの評価を行っています。
 
 ---
 
@@ -46,14 +46,7 @@ st.markdown("""
 [3] [Zero Crossing Rate - an overview | ScienceDirect Topics](https://www.sciencedirect.com/topics/engineering/zero-crossing-rate)
 
 ---
-## 3. メル周波数ケプストラム係数 (MFCC)
-
-
-
-
-
----
-以上3つの特徴量を用いて、2つの音声の類似度を求めるにはどうすればよいでしょうか？
+これらの特徴量を用いて、2つの音声の類似度を求めるにはどうすればよいでしょうか？
 
 
 ---
@@ -61,6 +54,7 @@ st.markdown("""
 
 ---
 ## DDTW (Derivative DTW)
+fast DDTW
 
 """)
 
