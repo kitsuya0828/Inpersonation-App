@@ -7,11 +7,11 @@ LOGGER = get_logger(__name__)
 
 st.set_page_config( # TODO
     page_title="ホーム | ぽいネ！",
-    page_icon="🎶",
+    page_icon="static/description/favicon.png"
 )
 
 st.caption("新感覚ものまね採点アプリ")
-st.title("ぽいネ！")
+st.image("static/description/logo.png")
 st.sidebar.success("プレイモードを選んでください")
 
 st.markdown(
