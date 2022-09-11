@@ -163,7 +163,7 @@ def show_result():
     html(f"""<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-hashtags="ぽいネ" data-url="https://kitsuya0828-inpersonation-app-home-aaa1x7.streamlitapp.com/" data-text="新感覚ものまね自動採点アプリ「ぽいネ！」を{last_player_index}人でプレイしました！" data-lang="ja" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>""")
 
 
-st.set_page_config(page_title="シングルモード | ぽいネ！", page_icon="👤")
+st.set_page_config(page_title="シングルモード | ぽいネ！", page_icon="static/description/favicon.png")
 st.sidebar.header("１台の端末でプレイする")
 
 # {動物名: 音声ファイルパス}

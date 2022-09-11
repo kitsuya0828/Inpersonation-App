@@ -15,7 +15,7 @@ from google.cloud import firestore, storage
 from datetime import timedelta, datetime
 from streamlit.components.v1 import html
 
-st.set_page_config(page_title="マルチモード | ぽいネ！", page_icon="👥")
+st.set_page_config(page_title="マルチモード | ぽいネ！", page_icon="static/description/favicon.png")
 
 root_url = "https://kitsuya0828-inpersonation-app-home-aaa1x7.streamlitapp.com"
 cert = {

@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="評価アルゴリズム", page_icon="📊")
+st.set_page_config(page_title="評価アルゴリズム", page_icon="static/description/favicon.png")
 
 st.header("ものまね評価のアルゴリズムについて")
 
