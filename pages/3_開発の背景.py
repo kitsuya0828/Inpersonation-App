@@ -1,13 +1,16 @@
 import streamlit as st
 
-st.set_page_config(page_title="開発の背景", page_icon="🔎")
+st.set_page_config(page_title="開発の背景", page_icon="static/description/favicon.png")
 
 st.header("アプリ開発の背景")
 
-st.info("ここにはぽいネ！開発に至った背景が書かれています")
+st.info("ここには「ぽいネ！」開発に至った背景が書かれています", icon="ℹ️")
 
 st.markdown("""
 ## その1　コミュニケーションを促進したい！
+""")
+st.image("static/description/communication.jpg")
+st.markdown("""
 コロナもだいぶ落ち着いてきて人と会う機会も増えてきました。
 また、オンラインの環境も整備されてきておりそこでコミュニケーションを取る機会も増えてきていると思います。\n
 
@@ -22,6 +25,9 @@ st.markdown("""
 
 ---
 ## その2　音声学習に役立つアプリを作りたい！
+""")
+st.image("static/description/english_learning.jpg")
+st.markdown("""
 「英語などの言語は小さいときから学んだ方がよい。」
 皆さんもこんなことを聞いたことがあると思います。
 小さいときは細かい音の違いに気づくことができますが、だんだんあまり聞かない音は聞きなじみのある音で捉えるようになってしまいます。\n
