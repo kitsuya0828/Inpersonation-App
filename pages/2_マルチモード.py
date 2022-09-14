@@ -1,6 +1,6 @@
 import streamlit as st
 from audiorecorder import audiorecorder
-from utils import fast_ddtw, get_line_chart
+from utils import fast_ddtw
 import numpy as np
 import pandas as pd
 import json
@@ -31,6 +31,7 @@ cert = {
     "client_x509_cert_url": st.secrets["client_x509_cert_url"]
 }
 
+# データベースの初期化
 db = firestore.Client.from_service_account_info(cert)
 client = storage.Client.from_service_account_info(cert)
 
@@ -39,6 +40,14 @@ def reset():
     "セッションを初期化する"
     for key in st.session_state.keys():
         del st.session_state[key]
+
+
+def reset_query_params():
+    "クエリパラメータを初期化する"
+    reset()
+    st.experimental_set_query_params(
+        session_id = ""
+    )
 
 
 def join():
@@ -107,7 +116,7 @@ def register():
                 session_info["expiration_date"], '%Y-%m-%d %H:%M:%S')
             if datetime.now() > expiration_date:  # セッションの有効期限切れ
                 st.error(f'セッションの有効期限（{session_info["expiration_date"]}）が切れています', icon="🚨")
-                st.components.v1.html(f'<a href="{root_url}/マルチモード/" target="_blank">ホストになる</a>')
+                st.button("もう一度最初からプレイする", on_click=reset_query_params)
             else:
                 st.session_state["session_id"] = query_params_dict["session_id"][0]
                 st.session_state["user_name"] = st.text_input("▼ ニックネームを入力してください", placeholder="※ 必須")
@@ -131,7 +140,7 @@ def register():
             name_to_path = json.load(f)
             st.session_state["theme"] = st.selectbox('▼ モノマネするお題を選んでください', name_to_path.keys())
         
-        # 試聴
+        # 試聴用
         with open("static/image/name_to_image.json", encoding="utf-8") as f:
             name_to_image = json.load(f)
         try_theme_image_file = Image.open(f"static/image/{name_to_image[st.session_state['theme']]}")
@@ -184,7 +193,7 @@ def update_submission_info():
 
 def record():
     "音声を録音する"
-    audio = audiorecorder("録音を開始する", "録音を停止する", f"recorder")
+    audio = audiorecorder("録音を開始する", "録音を停止する", "recorder")
     
     if len(audio) > 6 * 10**4:
         st.error("録音を短くしてください（目安：5秒以内）", icon="🚨")
@@ -217,7 +226,7 @@ def record():
 
 
 def extract_features(y, sr):
-    "いろいろな特徴量を抽出した辞書とグラフを返す"
+    "2つの特徴量を抽出した辞書とグラフを返す"
     features_dict = {}
     y_trimmed, _ = librosa.effects.trim(y=y, top_db=25)  # 無音区間削除
     y = librosa.util.normalize(y_trimmed)  # 正規化
@@ -236,11 +245,6 @@ def extract_features(y, sr):
         features_dict[k] = v.flatten()  # 多次元配列を1次元配列に変換する
     return features_dict, y, features_path
 
-def reset_query_params():
-    reset()
-    st.experimental_set_query_params(
-        session_id = ""
-    )
 
 def show_result():
     st.session_state["finished"] = True
@@ -352,8 +356,6 @@ st.sidebar.markdown("""
     6. 「最新の提出状況」をチェックして全員が「提出済み」になるのを待つ
     7. 「結果を見る」を押す
 """)
-
-
 
 if "registered" not in st.session_state or ("session_id" in st.session_state and st.session_state["session_id"] == ""):
     reset()
