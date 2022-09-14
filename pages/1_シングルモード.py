@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from streamlit.components.v1 import html
 
+
 def next():
     "プレイヤー番号を更新する"
     st.session_state["player_index"] += 1
@@ -45,7 +46,7 @@ def record():
         st.session_state[f"name_{player_index}"] = player_name
     st.markdown("---")
 
-    col1, col2 = st.columns([1, 1])  # 2列
+    col1, col2 = st.columns([1, 1])
     with col1:
         if f"path_{player_index}" in st.session_state:
             st.button("次の人に進む", on_click=next)
@@ -119,12 +120,7 @@ def show_result():
         score = {}
         with st.spinner(f'{player_name} のスコアを計算中...'):
             for key in player_features.keys():
-                
-                # DDTW
-                # gamma_mat, arrows, _ = DDTW(player_features[key], theme_features[key])
-                # ddtw_eval = 1 - (gamma_mat[-1][-1] / np.array(gamma_mat).max())
-                
-                # fast DDTW
+
                 distance, _, D_max = fast_ddtw(player_features[key], theme_features[key])
                 ddtw_eval = 1 - (distance / D_max)
                 
@@ -216,4 +212,4 @@ if "finished" not in st.session_state:
 
     st.markdown("---")
 
-    record()    # 録音画面
+    record()

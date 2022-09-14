@@ -4,8 +4,7 @@ from streamlit.components.v1 import html
 
 LOGGER = get_logger(__name__)
 
-
-st.set_page_config( # TODO
+st.set_page_config(
     page_title="ホーム | ぽいネ！",
     page_icon="static/description/favicon.png"
 )
@@ -24,7 +23,6 @@ st.markdown(
 st.info("👈 サイドバーからプレイモードを選んで「ものまね」に挑戦してみましょう！")
 
 with st.expander("👤 シングルモード（端末１台でプレイ）", expanded=True):
-# st.markdown("#### 👤 シングルモード（端末１台でプレイ）")
   single_col1, single_col2 = st.columns([2, 1])
   with single_col1:
     st.caption("▼ こんな人にオススメ！")
@@ -36,7 +34,6 @@ with st.expander("👤 シングルモード（端末１台でプレイ）", exp
     st.image("static/description/single_mode_resized.jpg")
 
 with st.expander("👥 マルチモード（人数分の端末でプレイ）", expanded=True):
-# st.markdown("#### 👥 マルチモード（人数分の端末でプレイ）")
   multi_col1, multi_col2 = st.columns([2, 1])
   with multi_col1:
     st.caption("▼ こんな人にオススメ！")
