@@ -55,7 +55,8 @@ def record():
             st.session_state["last_player_index"] = player_index
         else:
             st.session_state["last_player_index"] = player_index-1
-        st.button("結果を見る", on_click=show_result)
+        if "theme_path_1" in st.session_state:  # 1人でも録音した場合
+            st.button("結果を見る", on_click=show_result)
 
 
 def extract_features(y, sr):
