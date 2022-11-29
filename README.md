@@ -48,8 +48,8 @@ The following site is also helpful to know how to manage secrets in Streamlit.
 
 # Author
 
-* Kitsuya Azuma  ( kitsuyaazuma@gmail.com )
-* Hiroki Aita
+* Adumaru  ( adumaru.channel@gmail.com )
+* Rokimaru
 * Tohoku University
 
 
